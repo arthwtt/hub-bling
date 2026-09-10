@@ -1,0 +1,13 @@
+.env
+.env.*
+.git/
+node_modules/
+*.log
+artifacts/
+tests/
+bling-openapi.json
+API-*.md
+ANALISE-API-RISCOS.md
+PLANO.md
+REVISAO-CLAUDE.md
+analisar-openapi.mjs
