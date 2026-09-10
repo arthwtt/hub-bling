@@ -153,7 +153,7 @@ function Panel({
   );
 }
 
-export function Hub({ section }: { section: Section }) {
+export function Hub({ section, basePath = "" }: { section: Section; basePath?: string }) {
   const current = navigation.find((item) => item.id === section)!;
   const isFinance = section === "financeiro";
   const [filters, setFilters] = useState<Filters>({
@@ -499,7 +499,7 @@ export function Hub({ section }: { section: Section }) {
         Pular para o conteúdo
       </a>
       <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
-        <Link href="/visao-geral" className="brand">
+        <Link href={`${basePath}/visao-geral`} className="brand">
           <span className="brand-mark">h</span>
           <span>
             hub<span className="brand-light">bling</span>
@@ -517,7 +517,7 @@ export function Hub({ section }: { section: Section }) {
           {navigation.map(({ id, label, icon: Icon }) => (
             <Link
               key={id}
-              href={`/${id}`}
+              href={`${basePath}/${id}`}
               onClick={() => setMobileOpen(false)}
               aria-current={section === id ? "page" : undefined}
               className={section === id ? "active" : ""}
@@ -533,7 +533,7 @@ export function Hub({ section }: { section: Section }) {
             Bling não conectado
           </div>
           <p>Explore a central com dados fictícios.</p>
-          <Link href="/configuracoes">
+          <Link href={`${basePath}/configuracoes`}>
             Ver integração <ArrowRight size={14} />
           </Link>
         </div>
@@ -585,7 +585,7 @@ export function Hub({ section }: { section: Section }) {
               <strong>Você está explorando uma demonstração.</strong> Todos os
               dados são fictícios. Referência: {dateLabel(DEMO_TODAY)}.
             </span>
-            <Link href="/configuracoes">
+            <Link href={`${basePath}/configuracoes`}>
               Sobre a conexão <ArrowRight size={14} />
             </Link>
           </div>
@@ -813,7 +813,7 @@ export function Hub({ section }: { section: Section }) {
                     não é histórico de estoque.
                   </p>
                 </div>
-                <Link href="/produtos" className="text-button">
+                <Link href={`${basePath}/produtos`} className="text-button">
                   Ver produtos <ArrowRight size={15} />
                 </Link>
               </div>
@@ -821,7 +821,7 @@ export function Hub({ section }: { section: Section }) {
                 title="Pedidos recentes"
                 subtitle="Inclui cancelados para consulta; eles não compõem os indicadores"
                 action={
-                  <Link className="text-button" href="/vendas">
+                  <Link className="text-button" href={`${basePath}/vendas`}>
                     Ver todos <ArrowRight size={14} />
                   </Link>
                 }

@@ -1,4 +1,2 @@
-import { Hub } from "@/components/hub";
-export default function Demo() {
-  return <Hub section="visao-geral" />;
-}
+import { redirect } from "next/navigation";
+export default function Demo() { redirect("/demonstracao/visao-geral"); }
