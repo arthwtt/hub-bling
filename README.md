@@ -1,47 +1,60 @@
 # Hub Bling
 
-Central de informações em português, com visão geral, vendas, produtos/estoque, financeiro, clientes e configurações.
+Central privada em português, construída com Next.js 16, React 19, TypeScript e PostgreSQL Neon. Trabalho realizado somente nesta pasta, sem worktrees.
 
-## Entrega atual
+## Acesso e configuração
 
-Versão **demonstrativa**, com dados fictícios de 13/06/2026 a 10/09/2026. Inclui filtros, busca, paginação, detalhes de pedidos, CSV e teste de acessibilidade do callback. Nenhuma integração autenticada com o Bling, login de usuários ou banco de dados foi implementado nesta etapa.
+Produção: https://hub-bling.vercel.app/login
 
-## Executar
+Callback: https://hub-bling.vercel.app/api/integrations/bling/callback
 
-Node.js 24 LTS. Instalar com `npm ci`, iniciar com `npm run dev` e abrir http://localhost:3000.
+GitHub privado: https://github.com/arthwtt/hub-bling
 
-- `npm test`: testes das regras de indicadores e bloqueio do callback.
-- `npm run typecheck`: verificação TypeScript.
-- `npm run build`: build de produção.
-- `npm start`: servidor de produção local após build.
+O login da central é separado do Bling. `scripts/setup-local.mjs` criou `HUB_ADMIN_EMAIL` e uma senha aleatória em `HUB_ADMIN_PASSWORD` no `.env` local. A Vercel recebe somente o hash scrypt dessa senha. `BLING_EMAIL`, `BLING_PASSWORD` e `HUB_ADMIN_PASSWORD` nunca são enviados à Vercel e não são usados pelo código da aplicação.
+
+`HUB_MODE=live` habilita login e integração; sem esse valor as seções usam demonstração. `/demonstracao` continua público, com dados fictícios explicitamente identificados.
+
+## Implementado
+
+- Sessão de administrador único, armazenada como hash no PostgreSQL, expiração de 12 horas e cookie HttpOnly/Secure/SameSite=Lax.
+- Limite de tentativas de login e validação da origem de operações POST.
+- OAuth com state aleatório, associado à sessão, expiração de 10 minutos e consumo atômico de uso único.
+- Callback com redirecionamento 303 para URL limpa, sem refletir código/token.
+- Tokens cifrados com AES-256-GCM, vinculados à empresa por AAD; renovação coordenada por lock no banco.
+- Consultas exclusivamente GET ao Bling, com JWT, timeout, controle de taxa e preservação de números grandes antes de parsear JSON.
+- Importação manual em lotes de 10: pedidos, produtos, contatos, contas a receber e a pagar. Progresso persistido, lease por módulo e proteção contra reautorização concorrente.
+- Financeiro consulta detalhes para obter saldo, sem substituir saldo pelo valor original.
+- Telas reais mostram cobertura parcial e limites. Valor bruto de pedidos inclui todas as situações e não é apresentado como faturamento realizado.
+- Persistência limitada aos campos exibidos; documentos, telefones, endereços e e-mails de contatos não são guardados.
+
+## Estado da validação em 10/09/2026
+
+Banco gratuito conectado e migração aplicada em produção. Build e testes automatizados passaram. Testes HTTP reais verificaram acesso privado, login, cookie seguro, origem externa recusada, state de uso único e logout. O login no site oficial do Bling funcionou.
+
+**Pendente externo:** a tela de consentimento do Bling não oferece Autorizar porque o usuário não possui todos os recursos solicitados. Grupos sem permissão: Contratos, Controle de Lotes, Nota de Serviço e Ordens de Produção, incluindo suas operações de edição e exclusão. É necessário ajustar permissões/plano da conta ou retirar esses escopos do cadastro do aplicativo. Os quatro grupos não são consultados por esta versão.
+
+Ainda não foi possível trocar um código real, validar a empresa, importar dados reais ou exercitar refresh com o Bling. Não tratar esses passos como concluídos.
+
+## Executar e testar
+
+Node.js 24. `npm ci`, `npm run dev`, abrir http://localhost:3000. A demonstração não precisa de banco.
+
+- `npm test`: métricas demo, callback, criptografia, transporte OAuth, números grandes, minimização e limites de formulário.
+- `npm run typecheck`: TypeScript.
+- `npm run build`: build de produção; em Vercel Production + live aplica migração idempotente antes do build.
+- `node scripts/verify-live.mjs`: testes contra produção, usando credenciais locais sem imprimir valores.
 - `npm run audit:api`: análise offline do OpenAPI oficial salvo.
 
-Versões efetivamente instaladas são registradas em `package-lock.json`. O app usa Next.js e React; não exige variáveis de ambiente para a demonstração.
+Para testar live localmente, usar banco de desenvolvimento válido e `APP_URL=http://localhost:3000`. Arquivos `.env.production.local` gerados por env pull podem conter `[SENSITIVE]`, que não são credenciais utilizáveis. Não usar placeholders como conexão. Nunca substituir a chave de criptografia de um banco conectado sem migrar os envelopes ou reconectar o Bling.
 
-## Integração em preparação
+## Limites desta etapa
 
-- `GET /api/health`: informa saúde e modo demonstrativo, sem credenciais.
-- `GET /api/integrations/bling/callback`: classifica o retorno e redireciona com 303 para uma página limpa. Não troca tokens, não autentica state nem cria conexões.
-- `POST /api/integrations/bling/connect`: retorna 503 e `integration_disabled`.
+Administrador único e uma empresa por central. Acesso multiusuário, recuperação de senha, MFA, fila automática, webhooks, exportação real, custos históricos e lucro ainda não foram implementados. O limite diário interno de 50 mil chamadas deixa reserva para outras integrações, sem conhecer o consumo externo.
 
-A conexão está bloqueada no código. Não existe variável que a habilite nesta versão. `CLIENT_ID` e `CLIENT_SECRET` do `.env` local estão reservados para a etapa seguinte e não são lidos pela aplicação. Não enviar essas credenciais à Vercel até implementar o fluxo seguro.
+Pedidos e títulos usam janela fixa de 30 dias; títulos filtrados pelo vencimento, sem representar todo o passivo/ativo. Produtos e contatos consultam todos os cadastros. Paginação por número de página do provedor pode mudar durante importação; conclusão significa fim das páginas observadas, não snapshot transacional nem conciliação auditada. A visão carrega no máximo 1.000 registros no total e informa esse limite. Atualização completa reinicia a coleta do módulo; durante a coleta os dados são parciais.
 
-Um callback acessível **não equivale a OAuth validado**. Antes do fluxo real: banco, login, state persistido e de uso único, proteção entre empresas, tokens criptografados, renovação coordenada e revisão dos logs de infraestrutura. O código do aplicativo não registra queries; isso não garante que proxies/provedor não registrem a URL de entrada.
-
-O callback retorna para um caminho relativo fixo, sem confiar no Host ou refletir parâmetros sensíveis. O botão de copiar mostra a origem atual: cadastrar no Bling somente o domínio estável da produção, nunca o preview.
-
-## Regras da demonstração
-
-Dinheiro fictício em centavos inteiros; unidades dos exemplos são inteiras. O adapter real deverá tratar quantidades fracionárias, precisão decimal e inteiros grandes antes de converter o corpo JSON.
-
-Vendas usam data do pedido e excluem cancelados. Financeiro usa vencimento e saldo restante. Estoque é um snapshot atual, mesmo quando o período muda. Recorrência considera apenas o período filtrado. A busca e o seletor de situação/tipo filtram a tabela e o CSV; os cards continuam resumindo o período e canal.
+O código não registra tokens nem query OAuth. Logs da infraestrutura podem registrar URLs de entrada; aplicar controles de acesso e retenção do provedor. Consultas financeiras reais e comportamento de rate limit/refresh ainda exigem validação após a autorização.
 
 ## Documentação
 
-- `ANALISE-API-RISCOS.md`: análise documental, riscos e critérios para dados reais.
-- `REVISAO-CLAUDE.md`: parecer independente do Claude baseado no documento fornecido, sem acesso à conta.
-- `DECISOES.md`: decisões adotadas após a revisão.
-- `PLANO.md`: plano inicial, anterior à implementação.
-- `API-INVENTARIO.md` / `API-AUDITORIA.md`: inventário e varredura estrutural.
-
-Todo o trabalho é realizado nesta pasta, em um repositório único, sem worktrees.
+`ANALISE-API-RISCOS.md`, `API-INVENTARIO.md`, `API-AUDITORIA.md` e `bling-openapi.json` documentam a API. `PLANO.md` registra o plano original; `DECISOES.md` as decisões posteriores. `REVISAO-CLAUDE.md` contém o parecer documental inicial. A revisão posterior de código ficou em `artifacts/revisao-oauth-claude.txt`, ignorada no Git, e suas decisões estão resumidas em `DECISOES.md`.

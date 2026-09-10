@@ -22,3 +22,13 @@ Rotação de client secret afeta OAuth e assinatura dos webhooks. Procedimento d
 ## Limites de comprovação
 
 Build/testes demo não medem desempenho da API, renovação real, cobertura dos escopos ou consistência dos dados do usuário. A conectividade externa com callback será verificada após o deploy; toda autorização permanece bloqueada até a implementação da etapa real.
+
+## Revisão de implementação OAuth com Claude
+
+Revisão executada em modo sem ferramentas, recebendo somente código, sem credenciais. Adotados: validação explícita do código OAuth separada do classificador demo, minimização dos campos persistidos, timeout de lock e TLS verify-full explícito. O parser lossless já preserva números como strings, portanto a objeção sobre rejeitar números JSON não se aplica. A validação de kind e de caminho oficial já existia fora do trecho revisado.
+
+Mantido lock durante refresh, com timeout HTTP e transacional, para evitar rotação concorrente; erro incerto exige reconexão em vez de repetir refresh possivelmente consumido. O MVP é de um proprietário/empresa. Financeiro usa lotes pequenos e obtém saldo por detalhe. Registro malformado interrompe a página explicitamente; não pular silenciosamente dados financeiros.
+
+Paginação por offset, importação parcial, ausência de conciliação e limite visual de 1.000 registros estão documentados. Permissões do Bling impedem a etapa real. Não houve concessão adicional nem alteração de permissões no ERP.
+
+Teste no navegador encontrou Origin nulo em formulário com Referrer-Policy no-referrer. Política global alterada para strict-origin; callback e redirect OAuth continuam no-referrer. Referência: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy

@@ -131,3 +131,11 @@ Foi executado Claude Code local em modo não interativo, sem ferramentas ou MCP,
 ## Próxima etapa
 
 Construir a base com design simples e contratos locais de demonstração; criar GitHub e publicar Vercel; testar callback; preparar banco/identidade/executor; conectar Bling; importar gradualmente e reconciliar antes de ampliar indicadores. Repositório remoto, deploy e chamadas autenticadas continuam não executados nesta etapa de análise.
+
+## Atualização: implementação OAuth em 10/09/2026
+
+A fase demonstrativa foi publicada e foi seguida pela autorização do usuário para implementar integração real. PostgreSQL Neon gratuito conectado e migração aplicada. Login privado, state de uso único e transporte OAuth implementados; ver README para evidências e limitações atuais.
+
+Claude produziu o parecer documental registrado em REVISAO-CLAUDE.md e uma revisão posterior do código. A observação anterior sobre ausência de parecer descreve a primeira tentativa, que atingiu limite; foi superada após reautenticação.
+
+A autorização real está bloqueada na tela do Bling por falta de permissão para Contratos, Controle de Lotes, Nota de Serviço e Ordens de Produção. Não houve emissão de token real nem importação de dados. A revisão completa de dados/refresh permanece pendente desse acesso.
