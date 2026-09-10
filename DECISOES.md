@@ -32,3 +32,11 @@ Mantido lock durante refresh, com timeout HTTP e transacional, para evitar rota�
 Paginação por offset, importação parcial, ausência de conciliação e limite visual de 1.000 registros estão documentados. Permissões do Bling impedem a etapa real. Não houve concessão adicional nem alteração de permissões no ERP.
 
 Teste no navegador encontrou Origin nulo em formulário com Referrer-Policy no-referrer. Política global alterada para strict-origin; callback e redirect OAuth continuam no-referrer. Referência: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Referrer-Policy
+
+## Validação real após ajuste autorizado dos escopos
+
+Em 10/09/2026 o usuário autorizou remover os quatro grupos bloqueados. Foram removidos os 12 escopos correspondentes na interface oficial do Bling e confirmado o salvamento, que revoga tokens anteriores do aplicativo. Nenhum outro grupo foi alterado. A tela de consentimento passou a oferecer Autorizar. OAuth concluído, empresa identificada e conexão persistida.
+
+Consultas reais: 4 pedidos no período de 12/08 a 10/09/2026, 20 produtos e 20 contatos em dois lotes por módulo; financeiro sem títulos na janela consultada. Importações de produtos e contatos parciais. Refresh por expiração e detalhes financeiros continuam pendentes de validação real.
+
+Por solicitação do usuário, todas as telas demonstrativas passaram a ter rotas públicas próprias /demonstracao/[section], sem depender da conexão real.

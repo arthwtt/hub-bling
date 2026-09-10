@@ -139,3 +139,5 @@ A fase demonstrativa foi publicada e foi seguida pela autorização do usuário 
 Claude produziu o parecer documental registrado em REVISAO-CLAUDE.md e uma revisão posterior do código. A observação anterior sobre ausência de parecer descreve a primeira tentativa, que atingiu limite; foi superada após reautenticação.
 
 A autorização real está bloqueada na tela do Bling por falta de permissão para Contratos, Controle de Lotes, Nota de Serviço e Ordens de Produção. Não houve emissão de token real nem importação de dados. A revisão completa de dados/refresh permanece pendente desse acesso.
+
+Atualização posterior: o usuário autorizou retirar os 12 escopos dos quatro grupos bloqueados. OAuth real concluído e primeiras consultas GET importadas em 10/09/2026. O bloqueio descrito acima foi resolvido. Ver README para os limites da validação: importação parcial e refresh real ainda não exercitado.

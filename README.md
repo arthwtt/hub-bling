@@ -31,9 +31,13 @@ O login da central é separado do Bling. `scripts/setup-local.mjs` criou `HUB_AD
 
 Banco gratuito conectado e migração aplicada em produção. Build e testes automatizados passaram. Testes HTTP reais verificaram acesso privado, login, cookie seguro, origem externa recusada, state de uso único e logout. O login no site oficial do Bling funcionou.
 
-**Pendente externo:** a tela de consentimento do Bling não oferece Autorizar porque o usuário não possui todos os recursos solicitados. Grupos sem permissão: Contratos, Controle de Lotes, Nota de Serviço e Ordens de Produção, incluindo suas operações de edição e exclusão. É necessário ajustar permissões/plano da conta ou retirar esses escopos do cadastro do aplicativo. Os quatro grupos não são consultados por esta versão.
+**OAuth real validado:** após autorização do usuário, foram removidos do aplicativo os 12 escopos de Contratos, Controle de Lotes, Nota de Serviço e Ordens de Produção. A nova tela de consentimento permitiu autorizar, o callback trocou o código e a central identificou a empresa e persistiu a conexão.
 
-Ainda não foi possível trocar um código real, validar a empresa, importar dados reais ou exercitar refresh com o Bling. Não tratar esses passos como concluídos.
+Importação real verificada: 4 pedidos entre 12/08/2026 e 10/09/2026; dois lotes de produtos (20 registros) e dois de contatos (20 registros), comprovando retomada de página. As consultas a receber e a pagar retornaram zero títulos no período de vencimento selecionado. Produtos e contatos permanecem parciais. O valor bruto dos pedidos carregados foi R$ 981,02, incluindo todas as situações.
+
+Refresh real por expiração, detalhes financeiros com saldo e conciliação completa ainda não foram exercitados. Os testes de transporte e criptografia cobrem as respostas simuladas.
+
+Todas as seis telas demonstrativas estão públicas em `/demonstracao/visao-geral`, `/demonstracao/vendas`, `/demonstracao/produtos`, `/demonstracao/financeiro`, `/demonstracao/clientes` e `/demonstracao/configuracoes`. Sua navegação não exige login nem OAuth e não acessa registros reais.
 
 ## Executar e testar
 
